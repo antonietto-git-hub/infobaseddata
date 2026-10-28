@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fundos depois de 26/10</title>
+<meta name="description" content="Resumo: como 58 fundos de investimento ficaram depois do circuit breaker de 26/10/2026, conferido com dados da CVM e comparado com CDI, inflação e Ibovespa.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: uma coluna de leitura (~68ch), números grandes no topo, um gráfico, duas listas curtas, notas no fim. */
+:root{
+  --bg:#f7f8f6; --panel:#ffffff; --fg:#1b2321; --muted:#5d6966; --line:#dfe4e1;
+  --accent:#1d5fa8; --accent-soft:#c9d9ee; --pos:#2f7d4f; --neg:#b4472f; --warn:#9a6a12; --ring:#a9b2ae; --dark:#4a5451; --stem:#cdd3d0;
+  --display:"Newsreader", Georgia, "Times New Roman", serif;
+  --body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121715; --panel:#1a201e; --fg:#e7ece9; --muted:#9aa6a2; --line:#2c3532;
+    --accent:#7fb0e6; --accent-soft:#2c4560; --pos:#6fc290; --neg:#e58a72; --warn:#e0b45c; --ring:#7d8985; --dark:#b5c0bc; --stem:#3a4542; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121715; --panel:#1a201e; --fg:#e7ece9; --muted:#9aa6a2; --line:#2c3532;
+  --accent:#7fb0e6; --accent-soft:#2c4560; --pos:#6fc290; --neg:#e58a72; --warn:#e0b45c; --ring:#7d8985; --dark:#b5c0bc; --stem:#3a4542; color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:48px 64px}
+main{max-width:46rem;margin-inline:auto;display:flex;flex-direction:column;gap:40px}
+.eyebrow{font-family:var(--mono);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(2rem,5vw,2.9rem);line-height:1.1;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:500;font-size:1.45rem;line-height:1.25;margin:0 0 10px;text-wrap:balance}
+p{margin:0 0 12px}
+.lead{font-size:1.12rem;margin-top:16px;max-width:62ch}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,10.5rem),1fr));gap:12px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.stat .v{font-family:var(--display);font-size:2rem;line-height:1.05;font-variant-numeric:tabular-nums}
+.stat .k{font-size:.86rem;color:var(--muted);line-height:1.35}
+.stat.key{border-color:var(--accent)}
+.stat.key .v{color:var(--accent)}
+.refs{display:flex;flex-wrap:wrap;gap:8px 20px;font-family:var(--mono);font-size:.85rem;color:var(--muted);margin-top:4px}
+.refs b{color:var(--fg);font-weight:500}
+figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px 18px 12px}
+figcaption{font-size:.85rem;color:var(--muted);margin-top:8px}
+.legend{display:flex;gap:18px;font-size:.85rem;color:var(--muted);margin:0 0 6px;padding:0;list-style:none}
+.legend li{display:flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:2px;display:inline-block}
+.sw.a{background:var(--accent)} .sw.m{background:var(--accent-soft)}
+.chart{width:100%;overflow-x:auto}
+.chart svg{display:block;width:100%;height:auto}
+.dumb-leg{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.85rem;color:var(--muted);margin:0 0 8px;padding:0;list-style:none}
+.dumb-leg li{display:flex;align-items:center;gap:6px}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+.dot.o{border:2px solid var(--ring);width:10px;height:10px}
+.dot.b{background:var(--accent)} .dot.g{background:var(--dark)}
+.tbl{max-height:560px;overflow:auto;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:.88rem;font-variant-numeric:tabular-nums}
+th{position:sticky;top:0;background:var(--panel);text-align:left;font-weight:600;color:var(--muted);padding:8px 8px;border-bottom:1px solid var(--line);font-size:.8rem;line-height:1.3}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.n{white-space:nowrap} td.n,th.n{text-align:right;font-family:var(--mono);font-size:.82rem}
+.warn{color:var(--warn)} .mut{color:var(--muted)}
+@media (max-width:560px){.hide-sm{display:none}}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr));gap:24px}
+.list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.list li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:.95rem}
+.list .val{font-family:var(--mono);font-size:.88rem;white-space:nowrap}
+.pos{color:var(--pos)} .neg{color:var(--neg)}
+.check{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px;padding:0;list-style:none}
+.check li{border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.88rem;background:var(--panel)}
+.check b{font-family:var(--mono);font-weight:500;margin-right:4px}
+ul.notes{margin:0;padding-left:1.1rem;color:var(--muted);font-size:.92rem}
+ul.notes li{margin-bottom:6px}
+footer{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <p class="eyebrow">Fundos de investimento · dados até 26/10/2026</p>
+  <h1>Os fundos caíram forte em 26/10, mas quase todos seguem no lucro desde 2023</h1>
+  <p class="lead">No pregão seguinte ao 2º turno, o Ibovespa caiu 13,88% e acionou o circuit breaker. Conferimos 58 fundos com as cotas oficiais da CVM: a queda foi real, mas a maior parte devolveu ganhos recentes. O que mudou foi a vantagem sobre a renda fixa.</p>
+</header>
+
+<section aria-labelledby="numeros">
+  <h2 id="numeros">Em quatro números</h2>
+  <div class="stats">
+    <div class="stat"><span class="v num">42 de 47</span><span class="k">fundos seguem com ganho acumulado desde dez/2022</span></div>
+    <div class="stat"><span class="v num">42 de 47</span><span class="k">ganharam da inflação no período</span></div>
+    <div class="stat key"><span class="v num">12 de 47</span><span class="k">estão acima do CDI depois da queda (eram 28 na véspera)</span></div>
+    <div class="stat"><span class="v num">5</span><span class="k">fundos ficaram no negativo desde 2023</span></div>
+  </div>
+  <div class="refs" aria-label="Referências de dez/2022 a 26/10/2026">
+    <span>Dez/22 a 26/10/26:</span>
+    <span>CDI <b>+59,7%</b></span>
+    <span>Inflação (IPCA) <b>+19,3%</b></span>
+    <span>Ibovespa <b>+60,9%</b> <span>(era +86,9% em 23/10)</span></span>
+  </div>
+</section>
+
+<section aria-labelledby="grafico">
+  <h2 id="grafico">Quantos fundos superaram cada referência</h2>
+  <p class="muted">Só os 47 fundos com cota em todas as datas desde dez/2022 (25 de ações e 22 multimercados).</p>
+  <figure>
+    <ul class="legend"><li><span class="sw a"></span>Ações</li><li><span class="sw m"></span>Multimercado</li></ul>
+    <div class="chart" id="chart" role="img" aria-label="Porcentagem de fundos acima de cada referência, por categoria"></div>
+    <figcaption>Nos fundos de ações, a queda tirou a vantagem sobre o CDI: eram 22 de 25 na véspera e ficaram 9. Nos multimercados, a maioria já estava abaixo do CDI antes de 26/10.</figcaption>
+  </figure>
+</section>
+
+<section aria-labelledby="acoes">
+  <h2 id="acoes">Fundos de ações: 22 de 25 seguem no lucro desde 2023, mas só 9 ainda batem o CDI</h2>
+  <p class="muted">Acumulado desde dez/2022. Na véspera da queda, 22 estavam acima do CDI.</p>
+  <figure><ul class="dumb-leg"><li><span class="dot o"></span>até 23/10 (véspera)</li><li><span class="dot b"></span>26/10, acima do CDI</li><li><span class="dot g"></span>26/10, abaixo do CDI</li></ul><div class="chart" id="dumb-A" role="img" aria-label="Acumulado dos fundos de ações em 23/10 e 26/10"></div>
+  <figcaption>Cada linha vai do acumulado na véspera (círculo vazio) ao acumulado depois da queda (ponto). Linhas tracejadas: CDI e inflação no período.</figcaption></figure>
+</section>
+
+<section aria-labelledby="multi">
+  <h2 id="multi">Multimercados: 20 de 22 seguem no lucro desde 2023, mas só 3 batem o CDI</h2>
+  <p class="muted">A queda foi menor que nos fundos de ações, mas a maioria já estava abaixo do CDI antes de 26/10.</p>
+  <figure><ul class="dumb-leg"><li><span class="dot o"></span>até 23/10 (véspera)</li><li><span class="dot b"></span>26/10, acima do CDI</li><li><span class="dot g"></span>26/10, abaixo do CDI</li></ul><div class="chart" id="dumb-M" role="img" aria-label="Acumulado dos multimercados em 23/10 e 26/10"></div>
+  <figcaption>Mesma leitura do gráfico anterior, na mesma escala.</figcaption></figure>
+</section>
+
+<section aria-labelledby="destaques">
+  <h2 id="destaques">Quem se destacou</h2>
+  <p class="muted">Retorno acumulado de dez/2022 até 26/10/2026, já depois da queda.</p>
+  <div class="cols">
+    <div>
+      <p><b>Bem acima do CDI (+59,7%)</b></p>
+      <ul class="list" id="topo"></ul>
+    </div>
+    <div>
+      <p><b>No negativo desde 2023</b></p>
+      <ul class="list" id="fundo"></ul>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="lista">
+  <h2 id="lista">A lista que circulou era verdadeira?</h2>
+  <p>Em boa parte, sim. Comparamos a variação da cota de 23/10 para 26/10 informada na lista com a registrada na CVM:</p>
+  <ul class="check">
+    <li><b>32</b>conferem</li>
+    <li><b>9</b>próximos</li>
+    <li><b>14</b>não conferem</li>
+    <li><b>2</b>não existem na CVM</li>
+    <li><b>1</b>não comparável</li>
+  </ul>
+  <p>Alguns erros: Galapagos Evolution caiu 11,2% (não 4%) e Verde Equity caiu 8,7% (não 20%). Doze nomes eram ambíguos. Em vários deles, a lista usou o produto da gestora que menos caiu.</p>
+</section>
+
+<section aria-labelledby="todos">
+  <h2 id="todos">Os 58 fundos, um a um</h2>
+  <p class="muted">Variação da cota de 23/10 para 26/10/2026 na lista e na CVM, e o acumulado desde dez/2022. Fundos sem cota em todas as datas aparecem sem acumulado. * Nome ambíguo na lista: usado o produto principal da gestora.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Fundo</th><th class="hide-sm">Categoria</th><th class="n">Na lista</th><th class="n">Na CVM</th><th>Confere?</th><th class="n">Acum. desde dez/22</th><th class="n hide-sm">Contra o CDI</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table></div>
+</section>
+
+<section aria-labelledby="leitura">
+  <h2 id="leitura">Como ler esses números</h2>
+  <ul class="notes">
+    <li>É o retorno de quem tem cotas, líquido de taxas e antes do imposto. Não é o lucro das gestoras.</li>
+    <li>A queda de R$ 734 bilhões em valor de mercado é reavaliação de preço, não dinheiro que sumiu. Para quem tinha cotas, porém, o patrimônio caiu de fato.</li>
+    <li>Os 58 fundos vieram de uma lista que circulou. Não representam o mercado todo, e fundos encerrados desde 2023 não aparecem.</li>
+    <li>A inflação de outubro de 2026 ainda não foi divulgada; usamos a prévia (IPCA-15, 0,32%).</li>
+    <li>Isto não é recomendação de investimento.</li>
+  </ul>
+</section>
+
+<footer>
+  <p>Fontes: <a href="https://dados.cvm.gov.br/dataset/fi-doc-inf_diario">CVM – Informe Diário de Fundos</a> e cadastro de fundos e classes; Banco Central (CDI, IPCA e IPCA-15); B3 e <a href="https://www.infomoney.com.br/mercados/ibovespa-hoje-bolsa-de-valores-ao-vivo-26102026/">InfoMoney</a> (Ibovespa). Dados baixados em 28/10/2026.</p>
+</footer>
+
+</main>
+
+<script>
+// Dados resumidos (calculados a partir das cotas da CVM; ver README).
+const fundos = [{"f":"Absolute Endurance","c":"A","s":"Identificado","l":-0.19,"v":-0.1942,"k":"Confere","a23":0.993542,"a26":0.606457},{"f":"Alaska Black","c":"A","s":"Ambíguo","l":-0.3389,"v":-0.4448,"k":"Não confere","a23":0.57352,"a26":-0.126323},{"f":"Apex Ações 30","c":"A","s":"Identificado","l":-0.26,"v":-0.2602,"k":"Confere","a23":0.960103,"a26":0.450129},{"f":"Ártica","c":"A","s":"Identificado","l":-0.09,"v":-0.09,"k":"Confere","a23":1.185802,"a26":0.989102},{"f":"Bahia AM Valuation","c":"A","s":"Identificado","l":-0.14,"v":-0.1705,"k":"Não confere","a23":0.846009,"a26":0.531312},{"f":"BTG Synergy Long Only (item 6)","c":"A","s":"Ambíguo","l":-0.25,"v":-0.2109,"k":"Não confere","a23":null,"a26":null},{"f":"Constellation","c":"A","s":"Identificado","l":-0.267,"v":-0.2692,"k":"Confere","a23":0.754071,"a26":0.281789},{"f":"Dahlia Ações","c":"A","s":"Identificado","l":-0.2448,"v":-0.2459,"k":"Confere","a23":0.897,"a26":0.430565},{"f":"Encore Long Bias","c":"A","s":"Ambíguo","l":-0.3152,"v":-0.3679,"k":"Não confere","a23":null,"a26":null},{"f":"Forpus Ações","c":"A","s":"Ambíguo","l":-0.175,"v":-0.2609,"k":"Não confere","a23":0.208733,"a26":-0.106652},{"f":"Galapagos Frontier","c":"A","s":"Não identificado","l":-0.27,"v":null,"k":"Sem dado","a23":null,"a26":null},{"f":"Guepardo","c":"A","s":"Identificado","l":-0.15,"v":-0.1527,"k":"Confere","a23":1.122538,"a26":0.798478},{"f":"Ibiuna Equities","c":"A","s":"Identificado","l":-0.25,"v":-0.263,"k":"Próximo","a23":0.969368,"a26":0.451368},{"f":"Icatu Vanguarda Dividendos","c":"A","s":"Identificado","l":-0.2091,"v":-0.2103,"k":"Confere","a23":0.661852,"a26":0.31235},{"f":"Inter Dividendos","c":"A","s":"Identificado","l":-0.1084,"v":-0.1113,"k":"Confere","a23":1.102354,"a26":0.868342},{"f":"Kapitalo Tarkus","c":"A","s":"Identificado","l":-0.12,"v":-0.1363,"k":"Não confere","a23":1.453595,"a26":1.119169},{"f":"Moat","c":"A","s":"Identificado","l":-0.42,"v":-0.428,"k":"Confere","a23":0.567194,"a26":-0.103602},{"f":"Reach","c":"A","s":"Identificado","l":-0.3,"v":-0.2983,"k":"Confere","a23":0.727465,"a26":0.212192},{"f":"Real Investor","c":"A","s":"Identificado","l":-0.174,"v":-0.1845,"k":"Próximo","a23":1.03306,"a26":0.657896},{"f":"RPS Long Bias Selection","c":"A","s":"Ambíguo","l":-0.307,"v":-0.2869,"k":"Próximo","a23":1.0725,"a26":0.477825},{"f":"Porto SFA Ações","c":"A","s":"Identificado","l":-0.245,"v":-0.2561,"k":"Confere","a23":0.792727,"a26":0.333566},{"f":"STK Long Only","c":"A","s":"Identificado","l":-0.17,"v":-0.1908,"k":"Não confere","a23":0.713448,"a26":0.386528},{"f":"BTG Synergy Long Only","c":"A","s":"Identificado","l":-0.19,"v":-0.2109,"k":"Não confere","a23":null,"a26":null},{"f":"SPX Patriot","c":"A","s":"Identificado","l":-0.125,"v":-0.1376,"k":"Próximo","a23":1.50049,"a26":1.15634},{"f":"Távola Absoluto","c":"A","s":"Ambíguo","l":-0.27,"v":-0.2724,"k":"Confere","a23":0.947276,"a26":0.416879},{"f":"TB Capital","c":"A","s":"Identificado","l":-0.047,"v":-0.0443,"k":"Confere","a23":1.46119,"a26":1.352188},{"f":"Tenax Ações","c":"A","s":"Identificado","l":-0.17,"v":-0.193,"k":"Não confere","a23":0.951038,"a26":0.574422},{"f":"Verde Equity","c":"A","s":"Ambíguo","l":-0.2,"v":-0.0868,"k":"Não confere","a23":0.809645,"a26":0.652485},{"f":"Vinland Long Only","c":"A","s":"Identificado","l":-0.2,"v":-0.2067,"k":"Confere","a23":0.740259,"a26":0.380523},{"f":"Absolute Vertex","c":"M","s":"Identificado","l":-0.05,"v":-0.0483,"k":"Confere","a23":0.523242,"a26":0.449699},{"f":"ACE Capital Action","c":"M","s":"Identificado","l":-0.17,"v":-0.1651,"k":"Confere","a23":null,"a26":null},{"f":"Ace Multicenários","c":"M","s":"Identificado","l":0.006,"v":0.0082,"k":"Confere","a23":1.151144,"a26":1.1688},{"f":"Alaska Range","c":"M","s":"Identificado","l":-0.1148,"v":-0.1141,"k":"Confere","a23":0.534491,"a26":0.359363},{"f":"Bahia AM Maraú","c":"M","s":"Identificado","l":0.005,"v":0.0057,"k":"Confere","a23":0.457594,"a26":0.465888},{"f":"BTG Volt","c":"M","s":"Identificado","l":-0.01,"v":-0.0125,"k":"Confere","a23":null,"a26":null},{"f":"BTG Fusion","c":"M","s":"Identificado","l":-0.04,"v":-0.0468,"k":"Próximo","a23":null,"a26":null},{"f":"Capstone Macro","c":"M","s":"Identificado","l":-0.012,"v":-0.0036,"k":"Próximo","a23":0.564145,"a26":0.558513},{"f":"Dahlia Macro Global","c":"M","s":"Ambíguo","l":-0.0106,"v":-0.01,"k":"Confere","a23":0.52894,"a26":0.513604},{"f":"Forpus Multiestratégia","c":"M","s":"Identificado","l":-0.095,"v":-0.1094,"k":"Próximo","a23":0.362906,"a26":0.213805},{"f":"Galapagos Evolution","c":"M","s":"Identificado","l":-0.04,"v":-0.1115,"k":"Não confere","a23":0.631974,"a26":0.450048},{"f":"Genoa Vestas","c":"M","s":"Ambíguo","l":-0.027,"v":-0.0294,"k":"Confere","a23":null,"a26":null},{"f":"Ibiuna Hedge STH","c":"M","s":"Identificado","l":-0.025,"v":-0.0223,"k":"Confere","a23":0.335303,"a26":0.30552},{"f":"Icatu Dinâmico CDI","c":"M","s":"Identificado","l":-0.00131,"v":-0.0004,"k":"Não comparável","a23":null,"a26":null},{"f":"Itaú Global Dinâmico","c":"M","s":"Ambíguo","l":-0.035,"v":-0.0139,"k":"Não confere","a23":0.586948,"a26":0.564846},{"f":"Itaú Janeiro","c":"M","s":"Identificado","l":-0.026,"v":-0.0274,"k":"Confere","a23":null,"a26":null},{"f":"Itaú Artax","c":"M","s":"Identificado","l":-0.042,"v":-0.0452,"k":"Confere","a23":0.691719,"a26":0.615332},{"f":"Itaú Optimus Titan","c":"M","s":"Identificado","l":-0.04,"v":-0.0407,"k":"Confere","a23":0.60242,"a26":0.537244},{"f":"Jubaite","c":"M","s":"Não identificado","l":-0.042,"v":null,"k":"Sem dado","a23":null,"a26":null},{"f":"Kapitalo K10","c":"M","s":"Identificado","l":-0.0475,"v":-0.0478,"k":"Confere","a23":0.606697,"a26":0.529848},{"f":"Kapitalo Zeta","c":"M","s":"Identificado","l":-0.04,"v":-0.0602,"k":"Não confere","a23":0.525442,"a26":0.433589},{"f":"Legacy Capital","c":"M","s":"Identificado","l":-0.039,"v":-0.038,"k":"Confere","a23":0.417752,"a26":0.363846},{"f":"Mar Absoluto","c":"M","s":"Identificado","l":-0.15,"v":-0.1547,"k":"Confere","a23":0.05019,"a26":-0.112322},{"f":"Quantitas Mallorca","c":"M","s":"Identificado","l":-0.03,"v":-0.0343,"k":"Confere","a23":0.495953,"a26":0.44463},{"f":"Safra Galileo","c":"M","s":"Identificado","l":-0.0293,"v":-0.0305,"k":"Confere","a23":0.420103,"a26":0.376837},{"f":"SPX Nimitz","c":"M","s":"Identificado","l":-0.0056,"v":-0.0053,"k":"Confere","a23":0.363964,"a26":0.356777},{"f":"Verde","c":"M","s":"Identificado","l":-0.035,"v":-0.0465,"k":"Próximo","a23":0.695465,"a26":0.616585},{"f":"Vinland Macro","c":"M","s":"Ambíguo","l":-0.0232,"v":-0.031,"k":"Próximo","a23":0.426576,"a26":0.382409},{"f":"Vista Multiestratégia","c":"M","s":"Ambíguo","l":-0.21,"v":-0.2441,"k":"Não confere","a23":-0.076876,"a26":-0.302223}];
+const CDI = 0.597137, IPCA = 0.192515;
+
+const grupos = [
+  { ref: 'Ganho acumulado', acoes: 22, multi: 20 },
+  { ref: 'Acima da inflação', acoes: 22, multi: 20 },
+  { ref: 'Acima do CDI em 23/10', acoes: 22, multi: 6 },
+  { ref: 'Acima do CDI em 26/10', acoes: 9, multi: 3 },
+  { ref: 'Acima do Ibovespa em 26/10', acoes: 8, multi: 3 }
+];
+const total = { acoes: 25, multi: 22 };
+const melhores = [
+  ['TB Capital', 'ações', 135.2], ['Ace Multicenários', 'multimercado', 116.9], ['SPX Patriot', 'ações', 115.6],
+  ['Kapitalo Tarkus', 'ações', 111.9], ['Ártica', 'ações', 98.9], ['Inter Dividendos', 'ações', 86.8], ['Guepardo', 'ações', 79.8]
+];
+const piores = [
+  ['Moat Capital', 'ações', -10.4], ['Forpus Ações', 'ações', -10.7], ['Mar Absoluto', 'multimercado', -11.2],
+  ['Alaska Black', 'ações', -12.6], ['Vista Multiestratégia', 'multimercado', -30.2]
+];
+
+const fmt = (v) => (v > 0 ? '+' : '−') + Math.abs(v).toFixed(1).replace('.', ',') + '%';
+const fill = (id, rows, cls) => {
+  const ul = document.getElementById(id);
+  rows.forEach(([nome, cat, v]) => {
+    const li = document.createElement('li');
+    const a = document.createElement('span'); a.textContent = `${nome} `;
+    const c = document.createElement('span'); c.className = 'muted'; c.textContent = `· ${cat}`; a.appendChild(c);
+    const b = document.createElement('span'); b.className = `val ${cls}`; b.textContent = fmt(v);
+    li.append(a, b); ul.appendChild(li);
+  });
+};
+fill('topo', melhores, 'pos');
+fill('fundo', piores, 'neg');
+
+
+const pct = (v, d = 1) => v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v * 100).toFixed(d).replace('.', ',') + '%';
+function desenharDumb(cat) {
+  const box = document.getElementById('dumb-' + cat);
+  box.replaceChildren();
+  const rows = fundos.filter((r) => r.c === cat && r.a26 != null && r.a23 != null).sort((a, b) => b.a26 - a.a26);
+  const W = Math.max(300, box.clientWidth), narrow = W < 520, labelW = narrow ? 128 : 210, rh = 24, top = 30, right = 14;
+  const lo = -0.4, hi = 1.6, x = (v) => labelW + 46 + (v - lo) / (hi - lo) * (W - labelW - 46 - right);
+  const H = top + rows.length * rh + 28;
+  const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const el = (t, a, txt) => { const n = document.createElementNS(ns, t); for (const k in a) n.setAttribute(k, a[k]); if (txt != null) n.textContent = txt; svg.appendChild(n); return n; };
+  const font = 'IBM Plex Sans, system-ui, sans-serif', mono = 'IBM Plex Mono, ui-monospace, monospace';
+  (narrow ? [0, 0.8, 1.6] : [-0.4, 0, 0.4, 0.8, 1.2, 1.6]).forEach((t) => {
+    el('line', { x1: x(t), x2: x(t), y1: top - 6, y2: H - 22, stroke: t === 0 ? 'var(--muted)' : 'var(--line)', 'stroke-width': 1 });
+    el('text', { x: x(t), y: H - 6, 'text-anchor': 'middle', 'font-size': 11, fill: 'var(--muted)', 'font-family': mono }, pct(t, 0));
+  });
+  [['IPCA', IPCA, 'end', -5], ['CDI', CDI, 'start', 5]].forEach(([n, v, a, dx]) => {
+    el('line', { x1: x(v), x2: x(v), y1: top - 14, y2: H - 22, stroke: 'var(--muted)', 'stroke-dasharray': '4 3' });
+    el('text', { x: x(v) + dx, y: top - 18, 'text-anchor': a, 'font-size': 11, 'font-weight': 600, fill: 'var(--muted)', 'font-family': font }, `${n} ${pct(v)}`);
+  });
+  rows.forEach((r, i) => {
+    const y = top + i * rh + rh / 2, up = r.a26 > CDI, col = up ? 'var(--accent)' : 'var(--dark)';
+    const nome = narrow && r.f.length > 17 ? r.f.slice(0, 16) + '…' : r.f;
+    el('text', { x: labelW - 8, y: y + 4, 'text-anchor': 'end', 'font-size': narrow ? 11 : 13, fill: 'var(--fg)', 'font-family': font }, nome);
+    el('line', { x1: x(r.a23), x2: x(r.a26), y1: y, y2: y, stroke: 'var(--stem)', 'stroke-width': 3, 'stroke-linecap': 'round' });
+    el('circle', { cx: x(r.a23), cy: y, r: 4.5, fill: 'var(--panel)', stroke: 'var(--ring)', 'stroke-width': 2 });
+    const d = el('circle', { cx: x(r.a26), cy: y, r: 6, fill: col });
+    const t = document.createElementNS(ns, 'title'); t.textContent = `${r.f}: ${pct(r.a23)} até 23/10, ${pct(r.a26)} até 26/10`; d.appendChild(t);
+    el('text', { x: Math.min(x(r.a23), x(r.a26)) - 10, y: y + 4, 'text-anchor': 'end', 'font-size': 11, 'font-weight': 600, fill: col, 'font-family': mono, stroke: 'var(--panel)', 'stroke-width': 4, 'paint-order': 'stroke', 'stroke-linejoin': 'round' }, pct(r.a26, 0));
+  });
+  box.appendChild(svg);
+}
+
+(function tabela() {
+  const tb = document.getElementById('tbody');
+  const tone = (k) => k === 'Confere' ? 'pos' : k === 'Próximo' ? 'warn' : k === 'Não confere' ? 'neg' : 'mut';
+  fundos.forEach((r) => {
+    const tr = document.createElement('tr');
+    const td = (t, cls) => { const c = document.createElement('td'); c.textContent = t; if (cls) c.className = cls; tr.appendChild(c); };
+    const vs = r.a26 == null ? null : (1 + r.a26) / (1 + CDI) - 1;
+    td(r.f + (r.s === 'Ambíguo' ? ' *' : ''));
+    td(r.c === 'A' ? 'Ações' : 'Multimercado', 'hide-sm');
+    td(pct(r.l), 'n'); td(pct(r.v), 'n');
+    td(r.k, tone(r.k));
+    td(pct(r.a26), 'n');
+    td(pct(vs), `n hide-sm ${vs == null ? 'mut' : vs > 0 ? 'pos' : 'neg'}`);
+    tb.appendChild(tr);
+  });
+})();
+
+// Gráfico de barras horizontais (SVG puro, sem bibliotecas).
+function desenhar() {
+  const box = document.getElementById('chart');
+  box.replaceChildren();
+  const W = Math.max(300, box.clientWidth), narrow = W < 520;
+  const labelW = narrow ? 0 : 190, barH = 14, gap = 4, labelH = narrow ? 20 : 0, groupGap = 18, top = 6, right = 56;
+  const H = top + grupos.length * (labelH + barH * 2 + gap + groupGap);
+  const x = (share) => labelW + share * (W - labelW - right);
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const el = (tag, attrs, text) => { const n = document.createElementNS(ns, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (text != null) n.textContent = text; svg.appendChild(n); return n; };
+  [0, 0.5, 1].forEach((t) => {
+    el('line', { x1: x(t), x2: x(t), y1: 0, y2: H - 4, stroke: 'var(--line)', 'stroke-width': 1 });
+  });
+  grupos.forEach((g, i) => {
+    const yl = top + i * (labelH + barH * 2 + gap + groupGap);
+    const y0 = yl + labelH;
+    if (narrow) el('text', { x: 0, y: yl + 13, 'font-size': 13, fill: 'var(--fg)', 'font-family': 'IBM Plex Sans, system-ui, sans-serif' }, g.ref);
+    else el('text', { x: labelW - 12, y: y0 + barH + 4, 'text-anchor': 'end', 'font-size': 13, fill: 'var(--fg)', 'font-family': 'IBM Plex Sans, system-ui, sans-serif' }, g.ref);
+    [['acoes', 'var(--accent)', 0], ['multi', 'var(--accent-soft)', 1]].forEach(([k, color, j]) => {
+      const share = g[k] / total[k];
+      const y = y0 + j * (barH + gap);
+      const r = el('rect', { x: labelW, y, width: Math.max(1, x(share) - labelW), height: barH, rx: 2, fill: color });
+      const t = document.createElementNS(ns, 'title'); t.textContent = `${k === 'acoes' ? 'Ações' : 'Multimercado'}: ${g[k]} de ${total[k]}`; r.appendChild(t);
+      el('text', { x: x(share) + 6, y: y + barH - 3, 'font-size': 12, fill: 'var(--muted)', 'font-family': 'IBM Plex Mono, ui-monospace, monospace' }, `${g[k]}/${total[k]}`);
+    });
+  });
+  box.appendChild(svg);
+}
+desenhar();
+desenharDumb('A'); desenharDumb('M');
+let largura = document.getElementById('chart').clientWidth;
+window.addEventListener('resize', () => {
+  const w = document.getElementById('chart').clientWidth;
+  if (w !== largura) { largura = w; desenhar(); desenharDumb('A'); desenharDumb('M'); }
+});
+</script>
+</body>
+</html>
